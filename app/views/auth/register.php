@@ -8,75 +8,45 @@ if (session_status() === PHP_SESSION_NONE) {
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>BT - Inscription Utilisateur</title>
+    <title>BT - Inscription</title>
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; padding: 40px; }
-        h2 { color: #004a99; text-align: center; }
-        form { 
-            max-width: 500px; 
-            margin: 0 auto; 
-            background: white; 
-            padding: 30px; 
-            border-radius: 8px; 
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
-        }
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; }
+        .container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        form { background: white; padding: 35px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 450px; border-top: 5px solid #004a99; }
+        h2 { color: #004a99; text-align: center; margin-bottom: 25px; }
         label { font-weight: bold; color: #334155; display: block; margin-bottom: 5px; }
-        input, select { 
-            width: 100%; 
-            padding: 10px; 
-            margin-bottom: 20px; 
-            border: 1px solid #cbd5e1; 
-            border-radius: 4px; 
-            box-sizing: border-box; 
-        }
-        button { 
-            background: #004a99; 
-            color: white; 
-            border: none; 
-            padding: 12px; 
-            width: 100%; 
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-weight: bold; 
-            font-size: 16px;
-        }
-        button:hover { background: #003366; }
-        .back-link { text-align: center; display: block; margin-top: 20px; text-decoration: none; color: #64748b; }
+        input, select { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 14px; background: #004a99; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body>
-
-    <h2>Créer un nouveau compte utilisateur</h2>
+    <?php include '../layouts/navbar.php'; ?>
     
-    <form action="../../controllers/UserController.php" method="POST">
-        <label>Id / Matricule :</label>
-        <input type="text" name="id" placeholder="Ex: 87654321" required>
+    <div class="container">
+        <form action="../../controllers/UserController.php" method="POST">
+            <h2>Inscription Collaborateur</h2>
+            
+            <label>Id</label>
+            <input type="text" name="id" placeholder="Ex: admin" required>
+            
+            <label>Email</label>
+            <input type="email" name="email" required>
+            
+            <label>Mot de passe</label>
+            <input type="password" name="password" required>
+            
+            <label>Confirmer</label>
+            <input type="password" name="confirm_password" required>
+            
+            <label>Département</label>
+            <select name="departement">
+                <option value="Informatique">Informatique</option>
+            </select>
 
-        <label>Email (Login) :</label>
-        <input type="email" name="email" placeholder="exemple@gmail.com" required>
-
-        <label>Mot de passe :</label>
-        <input type="password" name="password" required>
-
-        <label>Confirmer le mot de passe :</label>
-        <input type="password" name="confirm_password" required>
-
-        <label>Département :</label>
-        <select name="departement" required>
-            <option value="Informatique">Informatique</option>
-        </select>
-
-        <label>Rôle :</label>
-        <select name="role" required>
-            <option value="USER">Utilisateur simple</option>
-            <option value="ADMIN">Administrateur</option>
-            <option value="SUPER_ADMIN">Super Administrateur</option>
-        </select>
-
-        <button type="submit" name="register">Enregistrer l'utilisateur</button>
-    </form>
-
-    <a href="../auth/login.php" class="back-link">Retour à la connexion</a>
-
+            <button type="submit" name="register">Créer mon compte</button>
+        </form>
+    </div>
+    
+    <?php include '../layouts/footer.php'; ?>
 </body>
 </html>

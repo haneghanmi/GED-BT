@@ -4,6 +4,15 @@ if (!isset($_SESSION['user_id'])) {
     header("Location: ../auth/login.php");
     exit();
 }
+
+// Sécurité : Seul le SUPER_ADMIN ou quelqu'un avec permission FULL peut accéder au formulaire
+if ($_SESSION['role'] !== 'SUPER_ADMIN' && ($_SESSION['perm_leasing'] ?? 'NONE') !== 'FULL') {
+    die("<div style='text-align:center; padding:50px; font-family:sans-serif;'>
+            <h2 style='color:red;'>Action Interdite</h2>
+            <p>Vous n'avez pas l'autorisation de créer ou modifier des documents Leasing.</p>
+            <a href='index.php'>Retour à la liste</a>
+         </div>");
+}
 ?>
 <!DOCTYPE html>
 <html lang="fr">
@@ -19,7 +28,8 @@ if (!isset($_SESSION['user_id'])) {
             border: 1px solid #e2e8f0;
         }
         h2 { color: #004a99; text-align: center; margin-bottom: 30px; }
-        input, select, textarea { 
+        label { display: block; margin-bottom: 8px; color: #64748b; font-weight: 500; }
+        input, select { 
             width: 100%; padding: 12px; margin-bottom: 20px; 
             border: 1px solid #e2e8f0; border-radius: 8px; box-sizing: border-box; 
         }
@@ -37,22 +47,32 @@ if (!isset($_SESSION['user_id'])) {
         <div class="form-card">
             <h2>Nouveau Dossier Leasing</h2>
             
-            <form action="../../controllers/LeasingController.php?action=create" method="POST" enctype="multipart/form-data">
-                <input type="text" name="client" placeholder="Nom du Client" required>
-                <input type="text" name="numero" placeholder="Numéro de Dossier" required>
-                <input type="number" step="0.01" name="montant" placeholder="Montant (DT)" required>
-                
-                <label style="display:block; margin-bottom:10px; color:#64748b;">Statut du dossier :</label>
+            <form action="../../controllers/LeasingController.php" method="POST" enctype="multipart/form-data">
+                <label>ID du Dossier :</label>
+                <input type="number" name="id" required placeholder="Ex: 87654321">
+
+                <label>Nom du Client</label>
+                <input type="text" name="client" required>
+
+                <label>Numéro de Dossier</label>
+                <input type="text" name="numero" required>
+
+                <label>Montant (DT)</label>
+                <input type="number" step="0.01" name="montant" required>
+
+                <label>Date du contrat</label>
+                <input type="date" name="date" required>
+
+                <label>Statut</label>
                 <select name="statut">
                     <option value="En attente">En attente</option>
                     <option value="Validé">Validé</option>
-                    <option value="Refusé">Refusé</option>
                 </select>
 
-                <label style="display:block; margin-bottom:10px; color:#64748b;">Document (PDF/Image) :</label>
+                <label>Document (PDF/Image)</label>
                 <input type="file" name="fichier" required>
 
-                <button type="submit" class="btn-submit">Enregistrer le dossier</button>
+                <button type="submit" name="add_leasing" class="btn-submit">Enregistrer le dossier</button>
             </form>
             
             <a href="index.php" style="display:block; text-align:center; margin-top:20px; color:#64748b; text-decoration:none;">Annuler</a>

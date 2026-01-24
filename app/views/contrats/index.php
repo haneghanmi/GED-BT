@@ -1,58 +1,101 @@
-<?php 
+<?php
 session_start();
-if (!isset($_SESSION['user_id'])) {
-    header("Location: ../auth/login.php");
+require_once '../../controllers/ContratController.php';
+
+$userPerm = $_SESSION['perm_contrat'] ?? 'NONE';
+
+// DESIGN DE LA PAGE ACCÈS REFUSÉ (CSS INTERNE)
+if ($userPerm === 'NONE' && $_SESSION['role'] !== 'SUPER_ADMIN') {
+    ?>
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <title>Accès Refusé</title>
+        <style>
+            .forbidden-body { margin: 0; font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; display: flex; flex-direction: column; height: 100vh; }
+            .forbidden-wrapper { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+            .forbidden-card { background: white; max-width: 450px; width: 100%; padding: 40px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); text-align: center; border-top: 6px solid #dc3545; }
+            .forbidden-card h1 { color: #dc3545; font-size: 24px; margin-top: 15px; }
+            .forbidden-card p { color: #555; line-height: 1.6; margin-bottom: 25px; }
+            .btn-return { display: inline-block; background-color: #004a99; color: white !important; padding: 12px 25px; border-radius: 6px; text-decoration: none; font-weight: bold; }
+        </style>
+    </head>
+    <body class="forbidden-body">
+        <?php include '../layouts/navbar.php'; ?>
+        <div class="forbidden-wrapper">
+            <div class="forbidden-card">
+                <div style="font-size: 50px;">🚫</div>
+                <h1>Accès Refusé</h1>
+                <p>Vous n'avez pas les autorisations nécessaires pour accéder au module <strong>Contrats</strong>. Veuillez contacter votre administrateur.</p>
+                <a href="../dashboard/select-module.php" class="btn-return">Retour au menu principal</a>
+            </div>
+        </div>
+    </body>
+    </html>
+    <?php
     exit();
 }
 
-require_once '../../../config/database.php';
-require_once '../../../app/models/Contrat.php';
+$canEdit = ($_SESSION['role'] === 'SUPER_ADMIN' || $userPerm === 'FULL');
+$canViewFile = ($_SESSION['role'] === 'SUPER_ADMIN' || $userPerm === 'FULL' || $userPerm === 'VIEW');
 
-$database = new config();
-$db = $database->getConnexion();
-$model = new Contrat($db);
-$contrats = $model->getAll();
+$contratCtrl = new ContratController();
+$contrats = $contratCtrl->getAll();
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-    <title>Liste des Contrats - BT</title>
-    <style>
-        body { font-family: sans-serif; margin: 0; padding: 0; background: #fff; color: #334155; }
-        .container { padding: 30px; }
-        h2 { color: #004a99; font-size: 24px; margin-bottom: 20px; border-left: 5px solid #c5a059; padding-left: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 15px; }
-        th { background: #f1f5f9; color: #475569; padding: 15px; text-align: left; border-bottom: 2px solid #e2e8f0; }
-        td { padding: 12px 15px; border-bottom: 1px solid #f1f5f9; }
-        tr:hover { background: #f8fafc; }
-        .btn-add { 
-            background: #004a99; color: white; padding: 10px 20px; 
-            border-radius: 6px; text-decoration: none; display: inline-block; margin-bottom: 20px; 
-        }
-    </style>
+    <meta charset="UTF-8">
+    <title>Gestion Contrats - BT</title>
+    <link rel="stylesheet" href="../../public/css/style.css">
 </head>
 <body>
     <?php include '../layouts/navbar.php'; ?>
+    
+    <div style="padding:30px;">
+        <h2>📄 Gestion des Contrats Fournisseurs</h2>
 
-    <div class="container">
-       <h2>Gestion des Contrats fournisseurs</h2> 
-        <a href="form.php" class="btn-add">➕ Ajouter un contrat</a>
-        <table border="1">
-            <tr>
-                <th>Fournisseur</th><th>Référence</th><th>Fin de contrat</th><th>Fichier</th>
-            </tr>
-            <?php foreach ($contrats as $c): ?>
-            <tr>
-                <td><?= htmlspecialchars($c['fournisseur']) ?></td>
-                <td><?= htmlspecialchars($c['reference']) ?></td>
-                <td><?= htmlspecialchars($c['date_fin']) ?></td>
-                <td><a href="../../../public/uploads/<?= htmlspecialchars($c['fichier']) ?>" target="_blank" style="color:#004a99;">📄 Voir</a></td>
-            </tr>
-            <?php endforeach; ?>
+        <?php if ($canEdit): ?>
+            <a href="form.php" style="background:#004a99; color:white; padding:10px; text-decoration:none; border-radius:5px;">+ Ajouter un contrat</a>
+            <br><br>
+        <?php endif; ?>
+
+        <table border="1" width="100%" style="border-collapse:collapse; background:white;">
+            <thead style="background:#f8fafc;">
+                <tr>
+                    <th>Fournisseur</th>
+                    <th>Référence</th>
+                    <th>Fichier</th>
+                    <?php if ($canEdit): ?> <th>Actions</th> <?php endif; ?>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($contrats as $c): ?>
+                <tr>
+                    <td><?= htmlspecialchars($c['fournisseur']) ?></td>
+                    <td><?= htmlspecialchars($c['reference']) ?></td>
+                    
+                    <td>
+                        <?php if (!empty($c['fichier']) && $canViewFile): ?>
+                            <a href="../../../public/uploads/<?= htmlspecialchars($c['fichier']) ?>" target="_blank" style="color:#004a99; font-weight:bold; font-size: 0.9em;">
+                                📄 <?= htmlspecialchars($c['fichier']) ?>
+                            </a>
+                        <?php else: ?>
+                             <span style="color:gray;">Pas de fichier</span>
+                        <?php endif; ?>
+                    </td>
+
+                    <?php if ($canEdit): ?>
+                    <td>
+                        <a href="form.php?id=<?= $c['id'] ?>">Modifier</a> | 
+                        <a href="../../controllers/ContratController.php?action=delete&id=<?= $c['id'] ?>" style="color:red;" onclick="return confirm('Supprimer ?')">Supprimer</a>
+                    </td>
+                    <?php endif; ?>
+                </tr>
+                <?php endforeach; ?>
+            </tbody>
         </table>
     </div>
-
-    <?php include '../layouts/footer.php'; ?>
 </body>
 </html>

@@ -1,35 +1,59 @@
 <?php
-// app/controllers/LeasingController.php
-require_once '../../config/database.php';
-require_once '../models/Leasing.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../models/Leasing.php';
 
-session_start();
+class LeasingController {
+    private $conn;
 
-// Vérification de la permission FULL pour l'ajout [cite: 61]
-if (isset($_POST['add_leasing'])) {
-    $leasingModel = new Leasing($conn);
-    
-    // Gestion du fichier [cite: 32]
-    $fileName = time() . '_' . $_FILES['fichier']['name'];
-    $targetDir = "../../public/uploads/";
-    $targetFilePath = $targetDir . $fileName;
+    public function __construct() {
+        $database = new config();
+        $this->conn = $database->getConnexion();
+    }
 
-    if (move_uploaded_file($_FILES['fichier']['tmp_name'], $targetFilePath)) {
-        // Préparation des données selon le cahier des charges [cite: 26, 85]
-        $data = [
-            $_POST['client'],   // Client [cite: 27]
-            $_POST['numero'],   // Numéro [cite: 28]
-            $_POST['montant'],  // Montant [cite: 29]
-            $_POST['date'],     // Date [cite: 30]
-            $_POST['statut'],   // Statut [cite: 31]
-            $fileName           // Fichier [cite: 32]
-        ];
+    public function getAll() {
+        $query = "SELECT * FROM leasing ORDER BY id DESC";
+        $stmt = $this->conn->query($query);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 
-        if ($leasingModel->create($data)) {
-            header("Location: ../views/leasing/index.php?msg=success");
-        }
-    } else {
-        echo "Erreur lors de l'upload du document.";
+    public function delete($id) {
+        $query = "DELETE FROM leasing WHERE id = ?";
+        $stmt = $this->conn->prepare($query);
+        return $stmt->execute([$id]);
     }
 }
-?>
+
+// Logique d'ajout
+if (isset($_POST['add_leasing'])) {
+    $database = new config();
+    $db = $database->getConnexion();
+    $leasingModel = new Leasing($db);
+    
+    $nomFichier = $_FILES['fichier']['name']; 
+    $destination = "../../public/uploads/" . $nomFichier;
+
+    if (move_uploaded_file($_FILES['fichier']['tmp_name'], $destination)) {
+        $data = [
+            $_POST['id'],
+            $_POST['client'], 
+            $_POST['numero'], 
+            $_POST['montant'],
+            $_POST['date'], 
+            $_POST['statut'], 
+            $nomFichier
+        ];
+        
+        if ($leasingModel->create($data)) {
+            header("Location: ../views/leasing/index.php?msg=success");
+            exit();
+        }
+    }
+}
+
+// Logique de suppression
+if (isset($_GET['action']) && $_GET['action'] === 'delete') {
+    $controller = new LeasingController();
+    $controller->delete($_GET['id']);
+    header("Location: ../views/leasing/index.php?msg=deleted");
+    exit();
+}

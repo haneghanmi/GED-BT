@@ -1,131 +1,77 @@
 <?php
-session_start();
+// app/views/home/index.php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 ?>
-
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>GED - Banque de Tunisie</title>
-
+    <title>BT - Accueil GED</title>
     <style>
-        body {
-            margin: 0;
-            font-family: Arial, sans-serif;
+        /* L'image de fond est UNIQUEMENT ici */
+        body, html { 
+            margin: 0; 
+            padding: 0; 
+            height: 100%; 
+            font-family: 'Segoe UI', sans-serif; 
         }
-
-        .hero {
-            height: 90vh;
-            background-image: url('repertoires.jpg');
+        
+        .hero-section { 
+            height: 100vh;
+            background: linear-gradient(rgba(0, 74, 153, 0.6), rgba(0, 0, 0, 0.7)), 
+                        url('repertoires.jpg') no-repeat center center fixed; 
             background-size: cover;
-            background-position: center;
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: column;
         }
 
-        .overlay {
-            background: rgba(0, 0, 0, 0.6);
-            color: white;
-            padding: 40px;
-            text-align: center;
-            border-radius: 8px;
-        }
-
-        .overlay h1 {
-            font-size: 36px;
-        }
-
-        .overlay p {
-            font-size: 18px;
-        }
-        /* Variables de couleurs pour la Banque de Tunisie */
-        :root {
-            --bt-blue: #0056b3;
-            --bt-gold: #c5a059;
-            --overlay-dark: rgba(0, 0, 0, 0.65);
-            --transition: all 0.3s ease;
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: #f4f7f6;
-        }
-
-        .hero {
-            height: 90vh;
-            background-image: url('repertoires.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed; /* Effet parallaxe léger */
+        .hero-content {
+            flex: 1;
             display: flex;
-            align-items: center;
+            flex-direction: column;
             justify-content: center;
-        }
-
-        .overlay {
-            background: var(--overlay-dark);
+            align-items: center;
             color: white;
-            padding: 60px;
             text-align: center;
-            border-radius: 4px; /* Coins moins arrondis pour un aspect plus formel/bancaire */
-            box-shadow: 0 15px 35px rgba(0,0,0,0.4);
-            border-top: 5px solid var(--bt-gold); /* Rappel de la couleur Or/Banque */
-            max-width: 800px;
-            backdrop-filter: blur(3px);
         }
 
-        .overlay h1 {
-            font-size: 42px;
-            margin-bottom: 15px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
+        h1 { font-size: 3.5rem; margin-bottom: 20px; text-shadow: 2px 2px 8px rgba(0,0,0,0.5); }
+        p { font-size: 1.5rem; margin-bottom: 40px; max-width: 800px; }
 
-        .overlay p {
-            font-size: 20px;
-            margin: 10px 0;
-            font-weight: 300;
-            opacity: 0.9;
+        .btn-group { display: flex; gap: 20px; }
+        .btn { 
+            padding: 15px 40px; 
+            border-radius: 5px; 
+            text-decoration: none; 
+            font-weight: bold; 
+            font-size: 18px; 
+            transition: 0.3s; 
         }
-
-        /* Animation d'entrée */
-        .overlay {
-            animation: fadeIn 1s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Adaptabilité mobile */
-        @media (max-width: 768px) {
-            .overlay {
-                width: 85%;
-                padding: 30px;
-            }
-            .overlay h1 {
-                font-size: 28px;
-            }
-        }
+        .btn-login { background: #ffcc00; color: #004a99; }
+        .btn-register { background: transparent; color: white; border: 2px solid white; }
+        .btn:hover { transform: scale(1.05); opacity: 0.9; }
     </style>
 </head>
 <body>
+    <div class="hero-section">
+        <?php include '../layouts/navbar.php'; ?>
 
-<?php require_once __DIR__ . '/../layouts/navbar.php'; ?>
-
-<div class="hero">
-    <div class="overlay">
-        <h1>Gestion Électronique des Documents</h1>
-        <p>Banque de Tunisie – Moyens Généraux</p>
-        <p>Contrats fournisseurs & dossiers de Leasing</p>
+        <div class="hero-content">
+            <h1>GED - BANQUE DE TUNISIE</h1>
+            <p>Système de Gestion Électronique des Documents</p>
+            
+            <?php if (!isset($_SESSION['user_id'])): ?>
+                <div class="btn-group">
+                    <a href="../auth/login.php" class="btn btn-login">Connexion</a>
+                    <a href="../auth/register.php" class="btn btn-register">S'inscrire</a>
+                </div>
+            <?php else: ?>
+                <a href="../dashboard/select-module.php" class="btn btn-login">Accéder à mon espace</a>
+            <?php endif; ?>
+        </div>
     </div>
-</div>
-
-<?php require_once __DIR__ . '/../layouts/footer.php'; ?>
-
+    <?php include '../layouts/footer.php'; ?>
 </body>
 </html>

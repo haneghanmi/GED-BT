@@ -1,70 +1,36 @@
+<?php
+// app/views/auth/login.php
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+?>
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Connexion - Banque de Tunisie</title>
-    
+    <title>BT - Connexion</title>
     <style>
-    body { 
-        font-family: 'Segoe UI', Arial, sans-serif; 
-        display: flex; 
-        justify-content: center; 
-        align-items: center; 
-        height: 100vh; 
-        background: linear-gradient(135deg, #004a99 0%, #002d5f 100%); 
-        margin: 0;
-    }
-    .login-box { 
-        background: white; 
-        padding: 40px; 
-        border-radius: 12px; 
-        box-shadow: 0 15px 35px rgba(0,0,0,0.2); 
-        width: 380px; 
-    }
-    h2 { color: #004a99; text-align: center; font-size: 28px; margin-bottom: 25px; border-bottom: 2px solid #f4f4f4; padding-bottom: 10px; }
-    label { font-weight: 600; color: #555; display: block; margin-bottom: 5px; }
-    input { 
-        width: 100% !important; 
-        padding: 12px !important; 
-        margin-bottom: 20px !important; 
-        border: 1px solid #ddd !important; 
-        border-radius: 6px !important; 
-        box-sizing: border-box; 
-    }
-    .btn-bt { 
-        background: #004a99; 
-        color: white; 
-        border: none; 
-        padding: 14px; 
-        width: 100%; 
-        border-radius: 6px; 
-        cursor: pointer; 
-        font-size: 16px; 
-        font-weight: bold; 
-        transition: background 0.3s; 
-    }
-    .btn-bt:hover { background: #00356d; }
-    .error { background: #fee2e2; color: #dc2626; padding: 10px; border-radius: 4px; text-align: center; font-size: 14px; }
-</style>
+        body { font-family: 'Segoe UI', sans-serif; background: #f4f7f6; margin: 0; padding: 0; min-height: 100vh; display: flex; flex-direction: column; }
+        .container { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        form { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 400px; border-top: 5px solid #004a99; }
+        h2 { color: #004a99; text-align: center; margin-bottom: 30px; }
+        label { font-weight: bold; color: #334155; }
+        input { width: 100%; padding: 12px; margin: 10px 0 25px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        button { width: 100%; padding: 14px; background: #004a99; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; font-size: 16px; }
+    </style>
 </head>
 <body>
-
-    <div class="login-box">
-        <h2 style="color: #004a99; text-align: center;">GED - BT</h2>
-        
-        <?php if(isset($_GET['error'])): ?>
-            <p class="error">Email ou mot de passe incorrect.</p>
-        <?php endif; ?>
-
+    <?php include '../layouts/navbar.php'; ?>
+    <div class="container">
         <form action="../../controllers/AuthController.php" method="POST">
-            <label>Email (Login)</label><br>
-            <input type="email" name="email" style="width: 100%; margin-bottom: 15px;" required><br>
-            
-            <label>Mot de passe</label><br>
-            <input type="password" name="password" style="width: 100%; margin-bottom: 20px;" required><br>
-            
-            <button type="submit" name="login" class="btn-bt">Se connecter</button>
+            <h2>Connexion</h2>
+            <label>Email Professionnel</label>
+            <input type="email" name="email" placeholder="votre@email.com" required>
+            <label>Mot de passe</label>
+            <input type="password" name="password" placeholder="••••••••" required>
+            <button type="submit" name="login">Se connecter</button>
         </form>
     </div>
+    <?php include '../layouts/footer.php'; ?>
 </body>
 </html>
